@@ -63,13 +63,19 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // 创建QMqttClien
     m_client = new QMqttClient(this);
+    // 设置IP
     m_client->setHostname(ui->lineEditHost->text());
+    // 设置端口
     m_client->setPort(ui->spinBoxPort->value());
 
+    // 关联信号：状态改变
     connect(m_client, &QMqttClient::stateChanged, this, &MainWindow::updateLogStateChange);
+    // 关联信号：断开连接
     connect(m_client, &QMqttClient::disconnected, this, &MainWindow::brokerDisconnected);
 
+    // 关联信号：读消息
     connect(m_client, &QMqttClient::messageReceived, this, [this](const QByteArray &message, const QMqttTopicName &topic) {
         const QString content = QDateTime::currentDateTime().toString()
                     + QLatin1String(" Received Topic: ")
@@ -80,6 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->editLog->insertPlainText(content);
     });
 
+    // 关联信号：ping响应
     connect(m_client, &QMqttClient::pingResponseReceived, this, [this]() {
         ui->buttonPing->setEnabled(true);
         const QString content = QDateTime::currentDateTime().toString()
@@ -88,10 +95,16 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->editLog->insertPlainText(content);
     });
 
+    // IP地址输入框
     connect(ui->lineEditHost, &QLineEdit::textChanged, m_client, &QMqttClient::setHostname);
+    // 端口输入框
     connect(ui->spinBoxPort, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::setClientPort);
+    // 用户名
     connect(ui->lineEditUser, &QLineEdit::textChanged, m_client, &QMqttClient::setUsername);
+    // 密码
     connect(ui->lineEditPassword, &QLineEdit::textChanged, m_client, &QMqttClient::setPassword);
+
+
     updateLogStateChange();
 }
 
@@ -101,6 +114,7 @@ MainWindow::~MainWindow()
     qApp->quit();
 }
 
+// 连接按键
 void MainWindow::on_buttonConnect_clicked()
 {
     if (m_client->state() == QMqttClient::Disconnected) {
@@ -120,11 +134,13 @@ void MainWindow::on_buttonConnect_clicked()
     }
 }
 
+// 退出按键
 void MainWindow::on_buttonQuit_clicked()
 {
     QApplication::quit();
 }
 
+// 更新日志状态更改
 void MainWindow::updateLogStateChange()
 {
     const QString content = QDateTime::currentDateTime().toString()
@@ -134,6 +150,7 @@ void MainWindow::updateLogStateChange()
     ui->editLog->insertPlainText(content);
 }
 
+// 断开连接
 void MainWindow::brokerDisconnected()
 {
     ui->lineEditHost->setEnabled(true);
@@ -143,11 +160,13 @@ void MainWindow::brokerDisconnected()
     ui->buttonConnect->setText(tr("Connect"));
 }
 
+// 设置端口
 void MainWindow::setClientPort(int p)
 {
     m_client->setPort(p);
 }
 
+// 发布
 void MainWindow::on_buttonPublish_clicked()
 {
     if (m_client->publish(ui->lineEditTopic->text(),
@@ -157,6 +176,7 @@ void MainWindow::on_buttonPublish_clicked()
         QMessageBox::critical(this, QLatin1String("Error"), QLatin1String("Could not publish message"));
 }
 
+//订阅
 void MainWindow::on_buttonSubscribe_clicked()
 {
     auto subscription = m_client->subscribe(ui->lineEditTopic->text(), ui->spinQoS->text().toUInt());
@@ -169,6 +189,7 @@ void MainWindow::on_buttonSubscribe_clicked()
     subWindow->show();
 }
 
+// ping测试
 void MainWindow::on_buttonPing_clicked()
 {
     ui->buttonPing->setEnabled(false);

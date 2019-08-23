@@ -73,7 +73,7 @@ public slots:
     void updateStatus(QMqttSubscription::SubscriptionState state);
 private:
     Ui::SubscriptionWindow *ui;
-    QMqttSubscription *m_sub;
+    QMqttSubscription *m_sub;   //  主题
 };
 
 #endif // SUBSCRIPTIONWINDOW_H

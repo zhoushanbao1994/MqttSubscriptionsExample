@@ -48,9 +48,10 @@
 **
 ****************************************************************************/
 
-
+// 订阅窗口
 #include "subscriptionwindow.h"
 #include "ui_subscriptionwindow.h"
+
 
 SubscriptionWindow::SubscriptionWindow(QMqttSubscription *sub, QWidget *parent) :
     QWidget(parent),
@@ -59,41 +60,51 @@ SubscriptionWindow::SubscriptionWindow(QMqttSubscription *sub, QWidget *parent) 
 {
     ui->setupUi(this);
 
+    // 主题
     ui->labelSub->setText(m_sub->topic().filter());
+    // QOS
     ui->labelQoS->setText(QString::number(m_sub->qos()));
     updateStatus(m_sub->state());
+
+    // 连接信号：消息读取
     connect(m_sub, &QMqttSubscription::messageReceived, this, &SubscriptionWindow::updateMessage);
+    // 连接信号：状态更新
     connect(m_sub, &QMqttSubscription::stateChanged, this, &SubscriptionWindow::updateStatus);
+    // 连接信号：QOS值
     connect(m_sub, &QMqttSubscription::qosChanged, [this](quint8 qos) {
         ui->labelQoS->setText(QString::number(qos));
     });
+    // 连接信号：按键--退订
     connect(ui->pushButton, &QAbstractButton::clicked, m_sub, &QMqttSubscription::unsubscribe);
 }
 
+// 析构
 SubscriptionWindow::~SubscriptionWindow()
 {
     m_sub->unsubscribe();
     delete ui;
 }
 
+// 读取消息，更新消息
 void SubscriptionWindow::updateMessage(const QMqttMessage &msg)
 {
     ui->listWidget->addItem(msg.payload());
 }
 
+// 更新状态
 void SubscriptionWindow::updateStatus(QMqttSubscription::SubscriptionState state)
 {
     switch (state) {
-    case QMqttSubscription::Unsubscribed:
+    case QMqttSubscription::Unsubscribed:   //取消订阅
         ui->labelStatus->setText(QLatin1String("Unsubscribed"));
         break;
-    case QMqttSubscription::SubscriptionPending:
+    case QMqttSubscription::SubscriptionPending:    //订阅待定
         ui->labelStatus->setText(QLatin1String("Pending"));
         break;
-    case QMqttSubscription::Subscribed:
+    case QMqttSubscription::Subscribed:     // 订阅
         ui->labelStatus->setText(QLatin1String("Subscribed"));
         break;
-    case QMqttSubscription::Error:
+    case QMqttSubscription::Error:          // 错误
         ui->labelStatus->setText(QLatin1String("Error"));
         break;
     default:
