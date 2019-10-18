@@ -85,10 +85,26 @@ SubscriptionWindow::~SubscriptionWindow()
     delete ui;
 }
 
+/*
+ * @breif 将16进制字节序列 转换为 对应的字符串
+ */
+QString SubscriptionWindow::ByteArrayToHexString(QByteArray data)
+{
+    QString ret(data.toHex().toUpper());    // QByteArray转十六进制CString
+
+    // 在数字间插入空格
+    int len = ret.length()/2;
+    for(int i = 1;i < len; i++) {
+        ret.insert( 2*i + i - 1," ");
+    }
+
+    return ret;
+}
+
 // 读取消息，更新消息
 void SubscriptionWindow::updateMessage(const QMqttMessage &msg)
 {
-    ui->listWidget->addItem(msg.payload());
+    ui->listWidget->addItem(ByteArrayToHexString(msg.payload()));
 }
 
 // 更新状态

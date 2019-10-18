@@ -68,6 +68,8 @@ public:
     explicit SubscriptionWindow(QMqttSubscription *sub, QWidget *parent = nullptr);
     ~SubscriptionWindow();
 
+    static QString ByteArrayToHexString(QByteArray data);
+
 public slots:
     void updateMessage(const QMqttMessage &msg);
     void updateStatus(QMqttSubscription::SubscriptionState state);
