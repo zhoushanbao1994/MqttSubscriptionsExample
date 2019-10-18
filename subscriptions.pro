@@ -1,4 +1,4 @@
-QT       += core gui network widgets mqtt
+QT       += core gui network widgets mqtt axcontainer printsupport
 
 TARGET = mqttsubscriptions
 
@@ -24,3 +24,6 @@ FORMS    += mainwindow.ui \
 
 target.path = $$[QT_INSTALL_EXAMPLES]/mqtt/subscriptions
 INSTALLS += target
+
+
+include(./qcustomplot/qcustomplot.pri)

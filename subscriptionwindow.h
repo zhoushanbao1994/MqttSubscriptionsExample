@@ -56,6 +56,8 @@
 #include <QtMqtt/QMqttMessage>
 #include <QtMqtt/QMqttSubscription>
 
+#include "qcustomplot.h"
+
 namespace Ui {
 class SubscriptionWindow;
 }
@@ -73,9 +75,29 @@ public:
 public slots:
     void updateMessage(const QMqttMessage &msg);
     void updateStatus(QMqttSubscription::SubscriptionState state);
+
+private:
+    // 数据解析
+    void AnalyticalData(QByteArray data);
+
+    // 绘制背景
+    void DrawBackground(QCustomPlot *CustomPlot, QString str);
+
+    // 绘制曲线
+    void Graph_Show(QCustomPlot *CustomPlot, QVector<double> port_x, QVector<double> port_y);
+
 private:
     Ui::SubscriptionWindow *ui;
     QMqttSubscription *m_sub;   //  主题
+
+    QVector<double> port1_x;
+    QVector<double> port1_y_V;
+    QVector<double> port1_y_I;
+    QVector<double> port1_y_P;
+    QVector<double> port1_y_Freq;
+
+    QVector<double> port2_x;
+    QVector<double> port2_y_Eq;
 };
 
 #endif // SUBSCRIPTIONWINDOW_H
